@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, People
 #from models import Person
 
 app = Flask(__name__)
@@ -44,6 +44,85 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+
+@app.route('/people', methods=['GET'])
+def get_people():
+    search = People.query.all()    
+    search_serialize = list(map(lambda x: x.serialize(), search)) # search.map((item)=>{item.serialize()})
+    print("valor de search_serialize ", search_serialize)
+    
+    return jsonify(search_serialize), 200
+
+@app.route('/people/<int:id>', methods=['GET'])
+def get_people_id(id):
+    try:
+        search = People.query.get(id)   
+        search_serialize = search.serialize()
+        print("valor de search_serialize ", search_serialize)    
+
+        return jsonify(search_serialize), 200
+
+    except Exception as error:
+        print(error)
+        return jsonify({"message":str(error)}), 500
+
+@app.route('/people', methods=['POST'])
+def add_people():
+    try:
+        body = request.get_json()
+        
+        new_register = People(
+            name= body["name"],
+            eye_color= body["eye_color"],
+            hair_color= body["hair_color"],
+            height= body["height"],
+            age= body["age"]
+        )
+
+        db.session.add(new_register)
+        db.session.commit()
+
+        print("body es: ", body)
+
+        return jsonify({"message":"El personaje se agregó"}), 200
+    except Exception as error:
+        print(error)
+        return jsonify({"message":str(error)}), 500
+
+@app.route('/people/<int:id>', methods=['PUT'])
+def edit_people_id(id):
+    try:
+        body = request.get_json()
+        search = People.query.get(id)   
+
+        search.name = body["name"],
+        search.eye_color = body["eye_color"],
+        search.hair_color =  body["hair_color"],
+        search.height =  body["height"],
+        search.age = body["age"]
+        db.session.commit()           
+
+        return jsonify({"message":"se editó correctamente"}), 200
+
+    except Exception as error:
+        print(error)
+        return jsonify({"message":str(error)}), 500
+
+    
+@app.route('/people/<int:id>', methods=['DELETE'])
+def delete_people_id(id):
+    try:
+        
+        search = People.query.get(id)   
+        db.session.delete(search)
+        db.session.commit()           
+
+        return jsonify({"message":"se eliminó correctamente"}), 200
+
+    except Exception as error:
+        print(error)
+        return jsonify({"message":str(error)}), 500
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
