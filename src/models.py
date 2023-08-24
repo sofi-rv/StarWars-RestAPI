@@ -46,6 +46,9 @@ class People(db.Model):
     gender = db.Column(db.String(30), unique=False, nullable=True, default="N/A")
     favorite_people = db.relationship(FavoritePeople, backref = 'people')
 
+    def __repr__(self):
+        return '<People %r>' % self.name
+
     def serialize(self):
         return{
             "id": self.id,
