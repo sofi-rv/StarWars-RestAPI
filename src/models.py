@@ -16,6 +16,21 @@ class FavoritePeople(db.Model):
             "email":  User.query.get(self.user_id).serialize()["email"],
             "people_name": People.query.get(self.people_id).serialize()["name"]
         }
+    
+class FavoritePlanets (db.Model):
+    __tablename__ = "favoriteplanets"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    planets_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "planets_id": self.planets_id,
+            "email":  User.query.get(self.user_id).serialize()["email"],
+            "planets_name": People.query.get(self.planets_id).serialize()["name"]
+        }
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -24,6 +39,7 @@ class User(db.Model):
     password = db.Column(db.String(255), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
     favorite_people = db.relationship(FavoritePeople, backref = 'user', lazy=True)
+    favorite_planets = db.relationship(FavoritePlanets, backref = 'user', lazy=True)
 
     def __repr__(self):
         return '<User %r>' % self.id
@@ -60,6 +76,33 @@ class People(db.Model):
             "gender": self.gender
         }
     
+class Planets(db.Model):
+    __tablename__ = 'planets'
+    id = db.Column(db.Integer,  primary_key=True)
+    name= db.Column(db.String(30), unique=True, nullable=False)
+    diameter= db.Column(db.String(30), unique=False, nullable=True)
+    rotation_period= db.Column(db.String(30), unique=False, nullable=False)
+    orbital_period= db.Column(db.String(30), unique=True, nullable=True)
+    gravity= db.Column(db.Float, unique=True, nullable=True)
+    population= db.Column(db.Integer, unique=True, nullable=True)
+    climate= db.Column(db.String(30), unique=True, nullable=True)
+    terrain= db.Column(db.String(50), unique=True, nullable=True)
 
+    def __repr__(self):
+        return '<Planets %r>' % self.name
+
+    def serialize(self):
+        return{
+
+            "id": self.id,
+            "name": self.name,
+            "diameter":self.diameter,
+            "rotation_period": self.rotation_period,
+            "orbital_period": self.orbital_period,
+            "gravity": self.gravity,
+            "population": self.population,
+            "climate": self.climate, 
+            "terrain": self.terrain 
+        }
 
 
